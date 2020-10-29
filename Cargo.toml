@@ -17,6 +17,7 @@ dashmap = "4.0.0-rc6"
 crossbeam-epoch = "0.8"
 crossbeam-epoch-old = { package = "crossbeam-epoch", version = "0.7" }
 snmalloc-rs = "0.2.18"
+tracing-core = "=0.1.12"
 
 [profile.release]
 codegen-units = 1
