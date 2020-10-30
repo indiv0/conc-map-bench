@@ -1,4 +1,5 @@
 use bustle::*;
+use carta::Carta;
 use chashmap::CHashMap;
 use contrie::ConMap;
 use dashmap::DashMap;
@@ -224,5 +225,47 @@ where
 
     fn update(&mut self, key: &Self::Key) -> bool {
         self.0.update(key, |_, v| v + 1)
+    }
+}
+
+#[derive(Clone)]
+pub struct CartaTable<K>(Arc<Carta<K, u32, FxBuildHasher>>);
+
+impl<K> Collection for CartaTable<K>
+where
+    K: Send + Sync + From<u64> + Copy + 'static + std::hash::Hash + Eq + std::fmt::Debug,
+{
+    type Handle = Self;
+    fn with_capacity(_capacity: usize) -> Self {
+        Self(Arc::new(Carta::new_with_hash_builder(
+            FxBuildHasher::default(),
+        )))
+    }
+
+    fn pin(&self) -> Self::Handle {
+        self.clone()
+    }
+}
+
+impl<K> CollectionHandle for CartaTable<K>
+where
+    K: Send + Sync + From<u64> + Copy + 'static + std::hash::Hash + Eq + std::fmt::Debug,
+{
+    type Key = K;
+
+    fn get(&mut self, key: &Self::Key) -> bool {
+        self.0.get(key).is_some()
+    }
+
+    fn insert(&mut self, key: &Self::Key) -> bool {
+        self.0.insert(*key, 0).is_none()
+    }
+
+    fn remove(&mut self, key: &Self::Key) -> bool {
+        self.0.remove(key).is_some()
+    }
+
+    fn update(&mut self, key: &Self::Key) -> bool {
+        self.0.update(*key, |v| *v = Arc::new(**v + 1)).is_some()
     }
 }

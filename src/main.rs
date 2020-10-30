@@ -1,7 +1,7 @@
 mod adapters;
 
 use adapters::{
-    CHashMapTable, ContrieTable, DashMapTable, FlurryTable,
+    CHashMapTable, CartaTable, ContrieTable, DashMapTable, FlurryTable,
     MutexStdTable,
 };
 use bustle::*;
@@ -93,6 +93,12 @@ fn exchange_task() {
         gc_cycle();
     }
     println!("");
+    println!("-- Carta");
+    for n in 1..=num_cpus::get() {
+        exchange(n).run::<CartaTable<u64>>();
+        gc_cycle();
+    }
+    println!("");
     println!("-- DashMap");
     for n in 1..=num_cpus::get() {
         exchange(n).run::<DashMapTable<u64>>();
@@ -127,6 +133,12 @@ fn cache_task() {
         gc_cycle();
     }
     println!("");
+    println!("-- Carta");
+    for n in 1..=num_cpus::get() {
+        read_heavy(n).run::<CartaTable<u64>>();
+        gc_cycle();
+    }
+    println!("");
     println!("-- DashMap");
     for n in 1..=num_cpus::get() {
         read_heavy(n).run::<DashMapTable<u64>>();
@@ -158,6 +170,12 @@ fn rapid_grow_task() {
     println!("-- Contrie");
     for n in 1..=num_cpus::get() {
         rapid_grow(n).run::<ContrieTable<u64>>();
+        gc_cycle();
+    }
+    println!("");
+    println!("-- Carta");
+    for n in 1..=num_cpus::get() {
+        rapid_grow(n).run::<CartaTable<u64>>();
         gc_cycle();
     }
     println!("");
